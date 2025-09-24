@@ -1,2 +1,24 @@
 #Definiciones
 Diferencia entre el if, cond, when, unless
+🔹 if
+Es la forma más simple de condicional.
+Evalúa una condición, y según el resultado ejecuta una expresión si es verdadera y otra si es falsa.
+
+🔹 con
+Es como una serie de if encadenados.
+Permite probar múltiples condiciones en orden y ejecutar el primer caso que sea verdadero.
+
+🔹 when
+Es como un if pero solo con rama verdadera.
+Se usa para ejecutar uno o más expresiones solo si la condición es verdadera.
+
+🔹 unless
+Es lo contrario de when.
+Ejecuta las expresiones solo si la condición es falsa.
+
+¿Qué devuelve car y cdr? ¿Cómo se pueden combinar para obtener elementos intermedios de una lista?
+🔹 Combinaciones abreviadas
+En algunos dialectos de Lisp existen combinaciones ya hechas:
+cadr ≡ (car (cdr ...)) → segundo elemento
+caddr ≡ (car (cdr (cdr ...))) → tercer elemento
+cadddr ≡ (car (cdr (cdr (cdr ...)))) → cuarto elemento
