@@ -1,0 +1,558 @@
+;;; adivina-one-piece.lisp - Juego "Adivina Quién" de One Piece con árbol de decisión
+;;; Sistema avanzado con aprendizaje y estructura de árbol binario
+
+(in-package :cl-user)
+
+;;; ============================================================================
+;;; UTILIDADES BÁSICAS
+;;; ============================================================================
+
+(defun limpiar (s)
+  "Limpia una cadena eliminando espacios y convirtiendo a minúsculas."
+  (string-downcase (string-trim " \t\n\r" s)))
+
+(defun si? (s)
+  "Determina si una respuesta es afirmativa."
+  (let ((respuesta (limpiar s)))
+    (member respuesta '("si" "sí" "s" "y" "yes" "1") :test #'string=)))
+
+;;; ============================================================================
+;;; BASE DE DATOS DE PERSONAJES
+;;; ============================================================================
+
+(defparameter *personajes*
+  (list
+   ;; Piratas del Sombrero de Paja
+   (cons "Monkey D. Luffy" 
+         '(:tripulacion sombrero-paja :fruta si :fruta-tipo gomu-gomu :genero masculino 
+           :cabello negro :papel capitan :haki si :recompensa 3000000000 :origen east-blue
+           :apodo mugiwara :arma ninguna :cicatriz-cara si :edad 19))
+   
+   (cons "Roronoa Zoro"
+         '(:tripulacion sombrero-paja :fruta no :genero masculino :cabello verde 
+           :papel espadachin :haki si :recompensa 1111000000 :origen east-blue
+           :arma espadas :cicatriz-cara si :edad 21 :espadas 3))
+   
+   (cons "Nami"
+         '(:tripulacion sombrero-paja :fruta no :genero femenino :cabello naranja
+           :papel navegante :haki no :recompensa 366000000 :origen east-blue
+           :arma clima-tact :edad 20 :tatuaje si))
+   
+   (cons "Usopp"
+         '(:tripulacion sombrero-paja :fruta no :genero masculino :cabello negro
+           :papel francotirador :haki si :recompensa 500000000 :origen east-blue
+           :arma honda :nariz-larga si :edad 19 :apodo god-usopp))
+   
+   (cons "Sanji"
+         '(:tripulacion sombrero-paja :fruta no :genero masculino :cabello rubio
+           :papel cocinero :haki si :recompensa 1032000000 :origen north-blue
+           :arma piernas :fumador si :edad 21 :cejas-raras si))
+   
+   (cons "Tony Tony Chopper"
+         '(:tripulacion sombrero-paja :fruta si :fruta-tipo hito-hito :genero masculino
+           :papel doctor :haki no :recompensa 1000 :origen drum
+           :arma transformaciones :especie reno :edad 17 :sombrero si))
+   
+   (cons "Nico Robin"
+         '(:tripulacion sombrero-paja :fruta si :fruta-tipo hana-hana :genero femenino
+           :papel arqueologo :haki si :recompensa 930000000 :origen west-blue
+           :arma flores :cabello negro :edad 30 :ohara si))
+   
+   (cons "Franky"
+         '(:tripulacion sombrero-paja :fruta no :genero masculino :cabello azul
+           :papel carpintero :haki no :recompensa 394000000 :origen south-blue
+           :arma cyborg :edad 36 :cyborg si :gafas-sol si))
+   
+   (cons "Brook"
+         '(:tripulacion sombrero-paja :fruta si :fruta-tipo yomi-yomi :genero masculino
+           :papel musico :haki si :recompensa 383000000 :origen west-blue
+           :arma espada :esqueleto si :edad 90 :afro si))
+   
+   (cons "Jinbe"
+         '(:tripulacion sombrero-paja :fruta no :genero masculino 
+           :papel timonel :haki si :recompensa 1100000000 :origen grand-line
+           :arma karate-tritones :especie tritón :edad 46 :ex-shichibukai si))
+   
+   ;; Otros Piratas Importantes
+   (cons "Trafalgar Law"
+         '(:tripulacion heart :fruta si :fruta-tipo ope-ope :genero masculino
+           :papel capitan-doctor :haki si :recompensa 3000000000 :origen north-blue
+           :arma espada :tatuajes si :edad 26 :apodo surgeon-of-death))
+   
+   (cons "Eustass Kid"
+         '(:tripulacion kid :fruta si :fruta-tipo jiki-jiki :genero masculino
+           :papel capitan :haki si :recompensa 3000000000 :origen south-blue
+           :arma magnetismo :cabello rojo :edad 23 :brazo-mecanico si))
+   
+   (cons "Portgas D. Ace"
+         '(:tripulacion whitebeard :fruta si :fruta-tipo mera-mera :genero masculino
+           :papel comandante :haki si :recompensa 550000000 :origen south-blue
+           :arma fuego :hermano-luffy si :edad 20 :fallecido si :sombrero si))
+   
+   (cons "Sabo"
+         '(:tripulacion revolucionarios :fruta si :fruta-tipo mera-mera :genero masculino
+           :papel jefe-staff :haki si :recompensa 602000000 :origen goa
+           :arma tubo :hermano-luffy si :edad 22 :cicatriz-cara si :sombrero si))
+   
+   (cons "Boa Hancock"
+         '(:tripulacion kuja :fruta si :fruta-tipo mero-mero :genero femenino
+           :papel emperatriz :haki si :recompensa 1659000000 :origen amazon-lily
+           :arma belleza :ex-shichibukai si :edad 31 :cabello negro))
+   
+   (cons "Buggy"
+         '(:tripulacion buggy :fruta si :fruta-tipo bara-bara :genero masculino
+           :papel capitan :haki no :recompensa 3189000000 :origen grand-line
+           :arma cuchillos :nariz-roja si :edad 39 :payaso si :yonko si))
+   
+   ;; Marines
+   (cons "Monkey D. Garp"
+         '(:afiliacion marine :fruta no :genero masculino :papel vice-almirante
+           :haki si :origen east-blue :arma puños :edad 78 :familia-d si :apodo heroe))
+   
+   (cons "Smoker"
+         '(:afiliacion marine :fruta si :fruta-tipo moku-moku :genero masculino
+           :papel vice-almirante :haki si :arma jitte :fumador si :edad 36 :cabello blanco))
+   
+   (cons "Tashigi"
+         '(:afiliacion marine :fruta no :genero femenino :papel capitan
+           :haki si :arma espada :gafas si :edad 23 :cabello negro))
+   
+   (cons "Aokiji"
+         '(:afiliacion ex-marine :fruta si :fruta-tipo hie-hie :genero masculino
+           :papel ex-almirante :haki si :arma hielo :edad 49 :apodo kuzan))
+   
+   (cons "Akainu"
+         '(:afiliacion marine :fruta si :fruta-tipo magu-magu :genero masculino
+           :papel fleet-admiral :haki si :arma magma :edad 55 :apodo sakazuki))
+   
+   (cons "Kizaru"
+         '(:afiliacion marine :fruta si :fruta-tipo pika-pika :genero masculino
+           :papel almirante :haki si :arma luz :edad 58 :apodo borsalino :gafas-sol si))
+   
+   ;; Yonkou y Leyendas
+   (cons "Kaido"
+         '(:afiliacion yonko :fruta si :fruta-tipo uo-uo :genero masculino
+           :papel emperador :haki si :recompensa 4611100000 :arma kanabo
+           :especie oni :edad 59 :dragon si :cicatrices si))
+   
+   (cons "Big Mom"
+         '(:afiliacion yonko :fruta si :fruta-tipo soru-soru :genero femenino
+           :papel emperatriz :haki si :recompensa 4388000000 :edad 68
+           :arma napoleon :cabello rosa :apodo charlotte-linlin))
+   
+   (cons "Shanks"
+         '(:afiliacion yonko :fruta no :genero masculino :papel emperador
+           :haki si :recompensa 4048900000 :origen west-blue :arma espada
+           :cabello rojo :edad 39 :brazo-perdido si :mentor-luffy si))
+   
+   (cons "Barbanegra"
+         '(:afiliacion yonko :fruta si :fruta-tipo yami-yami :genero masculino
+           :papel emperador :haki si :recompensa 3996000000 :arma oscuridad
+           :edad 40 :dientes-rotos si :dos-frutas si :apodo marshall-teach))
+   
+   (cons "Dracule Mihawk"
+         '(:afiliacion ex-shichibukai :fruta no :genero masculino :papel espadachin
+           :haki si :origen grand-line :arma yoru :edad 43
+           :ojos-dorados si :apodo ojos-halcon :mejor-espadachin si))
+   
+   ;; Villanos y Antagonistas
+   (cons "Crocodile"
+         '(:afiliacion ex-shichibukai :fruta si :fruta-tipo suna-suna :genero masculino
+           :papel ex-shichibukai :haki si :recompensa 1965000000 :arma arena
+           :edad 46 :cicatriz-cara si :gancho si))
+   
+   (cons "Donquixote Doflamingo"
+         '(:afiliacion ex-shichibukai :fruta si :fruta-tipo ito-ito :genero masculino
+           :papel ex-shichibukai :haki si :recompensa 340000000 :arma hilos
+           :edad 41 :gafas-sol si :abrigo-plumas si))
+   
+   (cons "Rob Lucci"
+         '(:afiliacion cp0 :fruta si :fruta-tipo neko-neko :genero masculino
+           :papel agente :haki si :arma rokushiki :edad 30 :leopardo si))
+   
+   (cons "Bartholomew Kuma"
+         '(:afiliacion revolucionarios :fruta si :fruta-tipo nikyu-nikyu :genero masculino
+           :papel ex-shichibukai :haki si :arma almohadillas :edad 47
+           :cyborg si :biblia si :ex-rey si))
+   
+   ;; Personajes de Wano
+   (cons "Yamato"
+         '(:tripulacion ninguna :fruta si :fruta-tipo inu-inu :genero femenino
+           :papel guerrero :haki si :arma kanabo :edad 28 :cuernos si
+           :padre-kaido si :cabello blanco))
+   
+   (cons "Kozuki Oden"
+         '(:afiliacion wano :fruta no :genero masculino :papel daimyo
+           :haki si :arma espadas :edad 39 :fallecido si :legendario si))
+   
+   ;; Más personajes
+   (cons "Perona"
+         '(:afiliacion thriller-bark :fruta si :fruta-tipo horo-horo :genero femenino
+           :papel comandante :arma fantasmas :edad 25 :gotica si :cabello rosa))
+   
+   (cons "Bartolomeo"
+         '(:tripulacion barto-club :fruta si :fruta-tipo bari-bari :genero masculino
+           :papel capitan :haki si :recompensa 200000000 :arma barreras
+           :edad 24 :fan-luffy si :cabello-verde si))
+   
+   (cons "Cavendish"
+         '(:tripulacion beautiful :fruta no :genero masculino :papel capitan
+           :haki si :recompensa 330000000 :arma espada :edad 26
+           :personalidad-doble si :cabello-rubio si :guapo si))))
+
+;;; ============================================================================
+;;; ESTRUCTURA DE ÁRBOL DE DECISIÓN
+;;; ============================================================================
+
+(defstruct nodo-arbol
+  "Representa un nodo en el árbol de decisión"
+  pregunta      ; String con la pregunta
+  propiedad     ; Keyword de la propiedad a verificar
+  valor         ; Valor esperado para respuesta afirmativa
+  si-rama       ; Subárbol o personaje si responde SÍ
+  no-rama)      ; Subárbol o personaje si responde NO
+
+(defun crear-nodo (pregunta propiedad valor si-rama no-rama)
+  "Crea un nuevo nodo del árbol"
+  (make-nodo-arbol :pregunta pregunta
+                   :propiedad propiedad
+                   :valor valor
+                   :si-rama si-rama
+                   :no-rama no-rama))
+
+;;; Árbol de decisión principal
+(defparameter *arbol-decisiones*
+  (crear-nodo
+   "¿Es parte de la tripulación del Sombrero de Paja?"
+   :tripulacion 'sombrero-paja
+   ;; Rama SÍ - Mugiwara
+   (crear-nodo
+    "¿Es el capitán?"
+    :papel 'capitan
+    "Monkey D. Luffy"
+    (crear-nodo
+     "¿Es mujer?"
+     :genero 'femenino
+     (crear-nodo
+      "¿Usa fruta del diablo?"
+      :fruta 'si
+      "Nico Robin"
+      "Nami")
+     (crear-nodo
+      "¿Es un esqueleto?"
+      :esqueleto 'si
+      "Brook"
+      (crear-nodo
+       "¿Es un cyborg?"
+       :cyborg 'si
+       "Franky"
+       (crear-nodo
+        "¿Es un reno?"
+        :especie 'reno
+        "Tony Tony Chopper"
+        (crear-nodo
+         "¿Usa espadas?"
+         :arma 'espadas
+         "Roronoa Zoro"
+         (crear-nodo
+          "¿Es francotirador?"
+          :papel 'francotirador
+          "Usopp"
+          (crear-nodo
+           "¿Es el cocinero?"
+           :papel 'cocinero
+           "Sanji"
+           "Jinbe"))))))))
+   ;; Rama NO - No es Mugiwara
+   (crear-nodo
+    "¿Es de la Marina?"
+    :afiliacion 'marine
+    (crear-nodo
+     "¿Tiene fruta del diablo?"
+     :fruta 'si
+     (crear-nodo
+      "¿Controla hielo?"
+      :arma 'hielo
+      "Aokiji"
+      (crear-nodo
+       "¿Controla magma?"
+       :arma 'magma
+       "Akainu"
+       (crear-nodo
+        "¿Controla luz?"
+        :arma 'luz
+        "Kizaru"
+        "Smoker")))
+     (crear-nodo
+      "¿Es mujer?"
+      :genero 'femenino
+      "Tashigi"
+      "Monkey D. Garp"))
+    (crear-nodo
+     "¿Es un Yonko?"
+     :afiliacion 'yonko
+     (crear-nodo
+      "¿Es mujer?"
+      :genero 'femenino
+      "Big Mom"
+      (crear-nodo
+       "¿Puede transformarse en dragón?"
+       :dragon 'si
+       "Kaido"
+       (crear-nodo
+        "¿Tiene el cabello rojo?"
+        :cabello 'rojo
+        "Shanks"
+        "Barbanegra")))
+     (crear-nodo
+      "¿Es parte de los revolucionarios?"
+      :afiliacion 'revolucionarios
+      (crear-nodo
+       "¿Es cyborg?"
+       :cyborg 'si
+       "Bartholomew Kuma"
+       "Sabo")
+      (crear-nodo
+       "¿Fue Shichibukai?"
+       :ex-shichibukai 'si
+       (crear-nodo
+        "¿Es mujer?"
+        :genero 'femenino
+        "Boa Hancock"
+        (crear-nodo
+         "¿Es el mejor espadachín del mundo?"
+         :mejor-espadachin 'si
+         "Dracule Mihawk"
+         (crear-nodo
+          "¿Controla arena?"
+          :arma 'arena
+          "Crocodile"
+          "Donquixote Doflamingo")))
+       (crear-nodo
+        "¿Tiene nariz roja?"
+        :nariz-roja 'si
+        "Buggy"
+        (crear-nodo
+         "¿Usa la fruta Ope Ope?"
+         :fruta-tipo 'ope-ope
+         "Trafalgar Law"
+         (crear-nodo
+          "¿Tiene brazo mecánico?"
+          :brazo-mecanico 'si
+          "Eustass Kid"
+          (crear-nodo
+           "¿Es hermano de Luffy?"
+           :hermano-luffy 'si
+           (crear-nodo
+            "¿Está fallecido?"
+            :fallecido 'si
+            "Portgas D. Ace"
+            "Sabo")
+           "Yamato"))))))))))
+
+;;; ============================================================================
+;;; SISTEMA DE BÚSQUEDA Y FILTRADO
+;;; ============================================================================
+
+(defun obtener-propiedad (personaje propiedad)
+  "Obtiene el valor de una propiedad de un personaje"
+  (getf (cdr personaje) propiedad))
+
+(defun coincide-valor? (valor-real valor-esperado)
+  "Verifica si un valor coincide con el esperado"
+  (cond
+    ((eq valor-esperado 'si) 
+     (and valor-real (not (member valor-real '(nil no)))))
+    ((eq valor-esperado 'no) 
+     (or (null valor-real) (eq valor-real 'no)))
+    ((keywordp valor-esperado) 
+     (eq valor-real valor-esperado))
+    (t (eql valor-real valor-esperado))))
+
+(defun personaje-cumple? (personaje propiedad valor respuesta-si)
+  "Verifica si un personaje cumple con la condición según la respuesta"
+  (let* ((valor-real (obtener-propiedad personaje propiedad))
+         (cumple (coincide-valor? valor-real valor)))
+    (if respuesta-si cumple (not cumple))))
+
+(defun filtrar-por-respuesta (candidatos propiedad valor respuesta)
+  "Filtra candidatos según una respuesta"
+  (let ((respuesta-si (si? respuesta)))
+    (remove-if-not
+     (lambda (p) (personaje-cumple? p propiedad valor respuesta-si))
+     candidatos)))
+
+;;; ============================================================================
+;;; MOTOR DEL JUEGO CON ÁRBOL
+;;; ============================================================================
+
+(defun recorrer-arbol (nodo)
+  "Recorre el árbol de decisiones haciendo preguntas"
+  (if (stringp nodo)
+      ;; Llegamos a una hoja (nombre de personaje)
+      (progn
+        (format t "~%🎯 ¡Creo que es ~a!~%" nodo)
+        (format t "¿Es correcto? (si/no): ")
+        (force-output)
+        (if (si? (read-line))
+            (format t "~%🎉 ¡Genial! ¡Adiviné correctamente!~%")
+            (format t "~%😅 Vaya, me equivoqué. ¡La próxima lo haré mejor!~%"))
+        nodo)
+      ;; Es un nodo interno, hacer pregunta
+      (progn
+        (format t "~%❓ ~a (si/no): " (nodo-arbol-pregunta nodo))
+        (force-output)
+        (let ((respuesta (read-line)))
+          (if (si? respuesta)
+              (recorrer-arbol (nodo-arbol-si-rama nodo))
+              (recorrer-arbol (nodo-arbol-no-rama nodo)))))))
+
+(defun jugar-modo-arbol ()
+  "Juega usando el árbol de decisiones"
+  (format t "~%~%╔═══════════════════════════════════════════╗~%")
+  (format t "║  🏴‍☠️  ADIVINA QUIÉN - ONE PIECE 🏴‍☠️      ║~%")
+  (format t "║        Modo Árbol de Decisión        ║~%")
+  (format t "╚═══════════════════════════════════════════╝~%~%")
+  (format t "Piensa en un personaje de One Piece y yo intentaré adivinarlo...~%")
+  (format t "Responde 'si' o 'no' a mis preguntas.~%")
+  (sleep 1)
+  (recorrer-arbol *arbol-decisiones*))
+
+;;; ============================================================================
+;;; MODO DE JUEGO CON FILTRADO DINÁMICO
+;;; ============================================================================
+
+(defparameter *preguntas-dinamicas*
+  (list
+   '("¿Es miembro de la tripulación del Sombrero de Paja?" :tripulacion sombrero-paja)
+   '("¿Tiene fruta del diablo?" :fruta si)
+   '("¿Es mujer?" :genero femenino)
+   '("¿Es de la Marina?" :afiliacion marine)
+   '("¿Es un Yonko o fue Yonko?" :afiliacion yonko)
+   '("¿Usa Haki?" :haki si)
+   '("¿Fue Shichibukai?" :ex-shichibukai si)
+   '("¿Es de East Blue?" :origen east-blue)
+   '("¿Su recompensa es mayor a 1 billón?" :recompensa 1000000000)
+   '("¿Usa espadas como arma principal?" :arma espadas)
+   '("¿Es un cyborg?" :cyborg si)
+   '("¿Tiene cicatrices en la cara?" :cicatriz-cara si)
+   '("¿Es hermano o relacionado con Luffy?" :hermano-luffy si)
+   '("¿Usa gafas o gafas de sol?" :gafas-sol si)
+   '("¿Es parte de los Revolucionarios?" :afiliacion revolucionarios)
+   '("¿Está fallecido?" :fallecido si)
+   '("¿Es de una especie no humana?" :especie reno)
+   '("¿Fuma?" :fumador si)))
+
+(defun jugar-modo-filtrado ()
+  "Juega usando filtrado dinámico de candidatos"
+  (format t "~%~%╔═══════════════════════════════════════════╗~%")
+  (format t "║  🏴‍☠️  ADIVINA QUIÉN - ONE PIECE 🏴‍☠️      ║~%")
+  (format t "║       Modo Filtrado Inteligente      ║~%")
+  (format t "╚═══════════════════════════════════════════╝~%~%")
+  (format t "Piensa en un personaje de One Piece...~%~%")
+  
+  (let ((candidatos (copy-list *personajes*))
+        (preguntas-usadas nil))
+    
+    (loop while (and (> (length candidatos) 1)
+                     (< (length preguntas-usadas) (length *preguntas-dinamicas*)))
+          do
+          (let* ((pregunta (find-if 
+                           (lambda (p) (not (member p preguntas-usadas)))
+                           *preguntas-dinamicas*))
+                 (prompt (first pregunta))
+                 (prop (second pregunta))
+                 (val (third pregunta)))
+            
+            (format t "❓ ~a (si/no): " prompt)
+            (force-output)
+            (let ((resp (read-line)))
+              (setf candidatos (filtrar-por-respuesta candidatos prop val resp))
+              (push pregunta preguntas-usadas)
+              (format t "   💭 Quedan ~d candidato(s) posible(s).~%~%" 
+                      (length candidatos)))))
+    
+    ;; Resultado final
+    (cond
+      ((= (length candidatos) 1)
+       (let ((ganador (first candidatos)))
+         (format t "~%🎯 ¡Tu personaje es: ~a!~%" (car ganador))
+         (format t "¿Es correcto? (si/no): ")
+         (force-output)
+         (if (si? (read-line))
+             (format t "~%🎉 ¡Excelente! ¡Adiviné correctamente!~%")
+             (format t "~%😅 Oh no, me equivoqué. ¡Ayúdame a mejorar!~%"))))
+      
+      ((> (length candidatos) 1)
+       (format t "~%🤔 No pude determinar exactamente. Posibles candidatos:~%")
+       (dolist (c candidatos)
+         (format t "   ⭐ ~a~%" (car c))))
+      
+      (t
+       (format t "~%❌ No encontré coincidencias. ¿Seguro que es un personaje que conozco?~%")))))
+
+;;; ============================================================================
+;;; SISTEMA DE CONSULTAS Y ESTADÍSTICAS
+;;; ============================================================================
+
+(defun mostrar-personaje (nombre)
+  "Muestra información detallada de un personaje"
+  (let ((personaje (find nombre *personajes* :key #'car :test #'string-equal)))
+    (if personaje
+        (progn
+          (format t "~%╔════════════════════════════════════════╗~%")
+          (format t "║  📋 INFORMACIÓN DE PERSONAJE          ║~%")
+          (format t "╚════════════════════════════════════════╝~%")
+          (format t "~%🏴‍☠️ Nombre: ~a~%" (car personaje))
+          (format t "~%Propiedades:~%")
+          (let ((props (cdr personaje)))
+            (loop for (k v) on props by #'cddr
+                  do (format t "  • ~a: ~a~%" k v))))
+        (format t "~%❌ Personaje '~a' no encontrado.~%" nombre))))
+
+(defun listar-personajes (&optional filtro)
+  "Lista todos los personajes, opcionalmente filtrados"
+  (format t "~%╔════════════════════════════════════════╗~%")
+  (format t "║  📜 LISTA DE PERSONAJES               ║~%")
+  (format t "╚════════════════════════════════════════╝~%~%")
+  
+  (let ((lista (if filtro
+                   (remove-if-not
+                    (lambda (p)
+                      (member filtro (cdr p)))
+                    *personajes*)
+                   *personajes*)))
+    
+    (format t "Total: ~d personaje(s)~%~%" (length lista))
+    (dolist (p lista)
+      (format t "  🏴‍☠️ ~a~%" (car p)))))
+
+(defun estadisticas ()
+  "Muestra estadísticas de la base de datos"
+  (format t "~%╔════════════════════════════════════════╗~%")
+  (format t "║  📊 ESTADÍSTICAS                      ║~%")
+  (format t "╚════════════════════════════════════════╝~%~%")
+  
+  (let ((total (length *personajes*))
+        (con-fruta 0)
+        (sin-fruta 0)
+        (mugiwaras 0)
+        (marines 0)
+        (yonkos 0)
+        (mujeres 0)
+        (hombres 0))
+    
+    (dolist (p *personajes*)
+      (let ((props (cdr p)))
+        (when (eq (getf props :fruta) 'si) (incf con-fruta))
+        (when (eq (getf props :fruta) 'no) (incf sin-fruta))
+        (when (eq (getf props :tripulacion) 'sombrero-paja) (incf mugiwaras))
+        (when (eq (getf props :afiliacion) 'marine) (incf marines))
+        (when (eq (getf props :afiliacion) 'yonko) (incf yonkos))
+        (when (eq (getf props :genero) 'femenino) (incf mujeres))
+        (when (eq (getf props :genero) 'masculino) (incf hombres))))
+    
+    (format t "📈 Total de personajes: ~d~%" total)
+    (format t "~%Por género:~%")
+    (format t "  👨 Masculino: ~d~%" hombres)
+    (format t "
