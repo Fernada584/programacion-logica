@@ -1,0 +1,242 @@
+1. Enunciado: La Biblioteca Nacional tiene el libro "Don Quijote de la Mancha".
+% Hecho
+tiene(biblioteca_nacional, don_quijote).
+
+2. Todos los libros en la Biblioteca Nacional están catalogados.
+% Regla
+catalogado(X) :- tiene(biblioteca_nacional, X).
+
+% Hechos
+tiene(biblioteca_nacional, don_quijote).
+tiene(biblioteca_nacional, cien_años_soledad).
+
+3. Existen libros que están en más de una biblioteca.
+% Hechos
+tiene(biblioteca_nacional, principito).
+tiene(biblioteca_central, principito).
+
+% Regla para verificar
+en_varias_bibliotecas(Libro) :-
+    tiene(B1, Libro),
+    tiene(B2, Libro),
+    B1 \= B2.
+
+4. Si un libro es raro, entonces no se puede prestar.
+% Regla
+no_prestable(X) :- raro(X).
+
+% Hechos
+raro(manuscrito_voynich).
+raro(codex_seraphinianus).
+
+5. La Biblioteca Central tiene más de 10,000 libros.
+% Hecho
+cantidad_libros(biblioteca_central, 15000).
+
+% Regla
+tiene_mas_10000(Biblioteca) :-
+    cantidad_libros(Biblioteca, N),
+    N > 10000.
+
+6. Todos los autores tienen al menos un libro en una biblioteca.
+% Regla
+autor_valido(Autor) :-
+    escrito_por(Libro, Autor),
+    tiene(_, Libro).
+
+% Hechos de ejemplo
+escrito_por(don_quijote, cervantes).
+escrito_por(cien_años_soledad, garcia_marquez).
+
+tiene(biblioteca_nacional, don_quijote).
+tiene(biblioteca_central, cien_años_soledad).
+
+7. Existe un autor que tiene más de 5 libros publicados.
+% Hechos
+escrito_por(libro1, asimov).
+escrito_por(libro2, asimov).
+escrito_por(libro3, asimov).
+escrito_por(libro4, asimov).
+escrito_por(libro5, asimov).
+escrito_por(libro6, asimov).
+
+% Regla
+autor_prolifico(Autor) :-
+    findall(L, escrito_por(L, Autor), Libros),
+    length(Libros, N),
+    N > 5.
+
+8. No todos los libros de la biblioteca están en buen estado.
+% Hechos
+tiene(biblioteca_central, libro_a).
+tiene(biblioteca_central, libro_b).
+buen_estado(libro_a).
+mal_estado(libro_b).
+
+% Regla
+no_todos_en_buen_estado :-
+    tiene(_, Libro),
+    \+ buen_estado(Libro).
+
+9. Si un libro está en buen estado, puede ser prestado.
+% Regla
+prestable(X) :- buen_estado(X).
+
+% Hechos
+buen_estado(caperucita_roja).
+ 
+10. Todos los usuarios registrados pueden tomar prestado un libro.
+% Regla
+puede_prestar(Usuario) :- usuario_registrado(Usuario).
+
+% Hechos
+usuario_registrado(luis).
+usuario_registrado(jesus).
+
+11. Existen libros que solo se pueden consultar en la biblioteca.
+% Hechos
+solo_consulta(enciclopedia).
+solo_consulta(reglamento).
+
+% Regla
+no_prestable(X) :- solo_consulta(X).
+
+12. Todo libro prestado debe ser devuelto en 15 días.
+% Regla
+dias_devolucion(Libro, 15) :- prestado(Libro, _).
+
+% Hechos
+prestado(caperucita_roja, juan).
+prestado(don_quijote, maria).
+
+13. Hay un libro que nadie ha pedido en préstamo.
+% Hechos
+libro(libro_olvidado).
+libro(harryy_potter).
+prestado(harry_potter, juan).
+
+% Regla
+nunca_prestado(Libro) :-
+    libro(Libro),
+    \+ prestado(Libro, _).
+
+14. Si un usuario tiene una multa, no puede pedir un libro prestado.
+% Regla
+no_puede_prestar(Usuario) :- tiene_multa(Usuario).
+
+puede_prestar_libro(Usuario) :-
+    usuario_registrado(Usuario),
+    \+ tiene_multa(Usuario).
+
+% Hechos
+tiene_multa(carlos).
+usuario_registrado(carlos).
+usuario_registrado(ana).
+
+15. Todos los libros escritos por un mismo autor están en la misma
+    sección.
+% Regla
+misma_seccion(Libro1, Libro2) :-
+    escrito_por(Libro1, Autor),
+    escrito_por(Libro2, Autor),
+    seccion(Libro1, S),
+    seccion(Libro2, S).
+
+% Hechos
+escrito_por(fundacion, asimov).
+escrito_por(yo_robot, asimov).
+seccion(fundacion, ciencia_ficcion).
+seccion(yo_robot, ciencia_ficcion).
+
+16. Existe un libro que tiene más de un ejemplar en la biblioteca.
+% Hechos
+ejemplares(harry_potter, 5).
+ejemplares(principito, 3).
+ejemplares(odisea, 1).
+
+% Regla
+varios_ejemplares(Libro) :-
+    ejemplares(Libro, N),
+    N > 1.
+
+17. Todo usuario con más de tres préstamos debe devolver uno para pedir
+    otro.
+% Regla
+debe_devolver_antes(Usuario) :-
+    findall(L, prestado(L, Usuario), Libros),
+    length(Libros, N),
+    N > 3.
+
+puede_pedir_otro(Usuario) :-
+    findall(L, prestado(L, Usuario), Libros),
+    length(Libros, N),
+    N =< 3.
+
+% Hechos
+prestado(libro1, luis).
+prestado(libro2, luis).
+prestado(libro3, luis).
+prestado(libro4, luis).
+
+18. Hay una sección de la biblioteca donde todos los libros son de
+    ciencias.
+% Hechos
+en_seccion(fisica_cuantica, seccion_ciencias).
+en_seccion(biologia_molecular, seccion_ciencias).
+
+de_ciencias(fisica_cuantica).
+de_ciencias(biologia_molecular).
+
+% Regla
+seccion_pura_ciencias(Seccion) :-
+    forall(en_seccion(Libro, Seccion), de_ciencias(Libro)).
+
+19. No todos los libros en la biblioteca tienen más de 100 páginas.
+% Hechos
+libro(principito).
+libro(quijote).
+paginas(principito, 96).
+paginas(quijote, 863).
+
+% Regla
+libro_corto(Libro) :-
+    libro(Libro),
+    paginas(Libro, N),
+    N =< 100.
+
+20. Existe un usuario que ha tomado prestados todos los libros de la
+    sección infantil.
+    % Hechos
+en_seccion(caperucita, infantil).
+en_seccion(tres_cerditos, infantil).
+en_seccion(patito_feo, infantil).
+
+prestado(caperucita, sofia).
+prestado(tres_cerditos, sofia).
+prestado(patito_feo, sofia).
+
+% Regla
+leyo_toda_seccion(Usuario, Seccion) :-
+    forall(en_seccion(Libro, Seccion), prestado(Libro, Usuario)).
+
+Hechos Monarios:
+
+raro(manuscrito_voynich)
+buen_estado(caperucita_roja)
+mal_estado(libro_b)
+solo_consulta(enciclopedia)
+libro(libro_olvidado)
+usuario_registrado(luis)
+tiene_multa(carlos)
+de_ciencias(fisica_cuantica)
+
+Hechos Binarios:
+
+tiene(biblioteca_nacional, don_quijote)
+escrito_por(fundacion, asimov)
+prestado(caperucita_roja, juan)
+paginas(principito, 96)
+ejemplares(harry_potter, 5)
+cantidad_libros(biblioteca_central, 15000)
+seccion(fundacion, ciencia_ficcion)
+en_seccion(caperucita, infantil)
