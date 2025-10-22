@@ -1,0 +1,160 @@
+% =================
+% LISTAS EN PROLOG
+% =================
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 1: Cabeza y cola de una lista
+% ----------------------------------------------------------------------------
+% Obtiene la cabeza (primer elemento) y la cola (resto de elementos) de una lista.
+
+cabeza_y_cola([Cabeza|Cola], Cabeza, Cola).
+
+% Ejemplo de uso:
+% ?- cabeza_y_cola([a,b,c,d], C, T).
+% C = a,
+% T = [b, c, d].
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 2: Verificar si un elemento pertenece a una lista
+% ----------------------------------------------------------------------------
+% Caso base: el elemento es la cabeza de la lista
+pertenece(X, [X|_]).
+
+% Caso recursivo: buscar en la cola
+pertenece(X, [_|Cola]) :-
+    pertenece(X, Cola).
+
+% Ejemplo de uso:
+% ?- pertenece(b, [a,b,c]).
+% true.
+% ?- pertenece(z, [a,b,c]).
+% false.
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 3: Calcular la longitud de una lista
+% ----------------------------------------------------------------------------
+% Caso base: la lista vacía tiene longitud 0
+longitud([], 0).
+
+% Caso recursivo: la longitud es 1 + longitud de la cola
+longitud([_|Cola], N) :-
+    longitud(Cola, N1),
+    N is N1 + 1.
+
+% Ejemplo de uso:
+% ?- longitud([a,b,c,d], N).
+% N = 4.
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 4: Concatenar dos listas
+% ----------------------------------------------------------------------------
+% Caso base: concatenar lista vacía con L2 da L2
+concatenar([], L2, L2).
+
+% Caso recursivo: mover elementos de L1 al resultado
+concatenar([Cabeza|Cola], L2, [Cabeza|Resultado]) :-
+    concatenar(Cola, L2, Resultado).
+
+% Ejemplo de uso:
+% ?- concatenar([1,2], [3,4], R).
+% R = [1, 2, 3, 4].
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 5: Invertir una lista
+% ----------------------------------------------------------------------------
+% Versión con predicado auxiliar (más eficiente)
+invertir(Lista, Invertida) :-
+    invertir_aux(Lista, [], Invertida).
+
+% Caso base: cuando la lista original está vacía, el acumulador es el resultado
+invertir_aux([], Acumulador, Acumulador).
+
+% Caso recursivo: mover elementos al acumulador
+invertir_aux([Cabeza|Cola], Acumulador, Invertida) :-
+    invertir_aux(Cola, [Cabeza|Acumulador], Invertida).
+
+% Ejemplo de uso:
+% ?- invertir([a,b,c,d], R).
+% R = [d, c, b, a].
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 6: Obtener el último elemento
+% ----------------------------------------------------------------------------
+% Caso base: lista con un solo elemento
+ultimo([X], X).
+
+% Caso recursivo: buscar en la cola
+ultimo([_|Cola], X) :-
+    ultimo(Cola, X).
+
+% Ejemplo de uso:
+% ?- ultimo([a,b,c,d], X).
+% X = d.
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 7: Sumar los elementos de una lista numérica
+% ----------------------------------------------------------------------------
+% Caso base: la suma de una lista vacía es 0
+suma_lista([], 0).
+
+% Caso recursivo: sumar el primer elemento con la suma del resto
+suma_lista([Cabeza|Cola], Suma) :-
+    suma_lista(Cola, SumaCola),
+    Suma is Cabeza + SumaCola.
+
+% Ejemplo de uso:
+% ?- suma_lista([2,4,6,8], S).
+% S = 20.
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 8: Eliminar un elemento de una lista
+% ----------------------------------------------------------------------------
+% Caso base: si encontramos el elemento, devolvemos la cola
+eliminar(X, [X|Cola], Cola).
+
+% Caso recursivo: mantener el elemento actual y seguir buscando
+eliminar(X, [Cabeza|Cola], [Cabeza|Resultado]) :-
+    X \= Cabeza,
+    eliminar(X, Cola, Resultado).
+
+% Ejemplo de uso:
+% ?- eliminar(c, [a,b,c,d,c], R).
+% R = [a, b, d, c].
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 9: Duplicar los elementos de una lista
+% ----------------------------------------------------------------------------
+% Caso base: duplicar lista vacía es lista vacía
+duplicar([], []).
+
+% Caso recursivo: duplicar cada elemento
+duplicar([Cabeza|Cola], [Cabeza, Cabeza|Resto]) :-
+    duplicar(Cola, Resto).
+
+% Ejemplo de uso:
+% ?- duplicar([a,b,c], R).
+% R = [a, a, b, b, c, c].
+
+
+% ----------------------------------------------------------------------------
+% EJERCICIO 10: Intercalar dos listas
+% ----------------------------------------------------------------------------
+% Caso base: si una lista está vacía, el resultado es la otra
+intercalar([], L2, L2).
+intercalar(L1, [], L1).
+
+% Caso recursivo: tomar un elemento de cada lista alternadamente
+intercalar([X|L1], [Y|L2], [X, Y|Resto]) :-
+    intercalar(L1, L2, Resto).
+
+% Ejemplo de uso:
+% ?- intercalar([1,3,5], [2,4,6], R).
+% R = [1, 2, 3, 4, 5, 6].
