@@ -1,0 +1,65 @@
+-La tierra es un planeta. 
+planeta(tierra) -> p(t) predicado : monario
+Tierra --> constante de individuo
+planeta --> propiedad
+
+-La luna ni es un planeta. 
+¬planeta(luna) se esta negando -> predicado : monario
+¬p(l)
+Luna --> constante de individuo
+planeta --> propiedad
+
+-La luna es un satelite.
+Luna --> constante de individuo
+satelite --> propiedad
+predicado : monario
+satelit(luna) -> s(l)
+
+-La tierra gira alrededor del sol
+tierra --> constante de individuo
+sol --> constante de individuo
+gira alrededor --> propiedad
+gira_alrededor(tierra, sol) -> ga(t, s)
+predicado : binario
+
+-Todo planeta es un satelite
+∀ -> cuantificador universal
+planeta -> propiedad
+
+//predicarios binario terinario
+
+sol -> constante de individuo 
+AxP(x) -> (x,sol)
+
+-Algun planeta gira al rededor de la luna.
+E -> cuantificador existencial 
+plantea ->propiedad, vairable de individiuo 
+gira alrededor -> propiedad
+Luna -> constante de individuo
+reflas de inferencia
+ExPlaneta(x)´g(X,Luna), ExP(x)'g(X, L)
+
+Hay por lo menos un satelite 
+E -> cuantificador existentencial
+satelite -> propiedad, variable de individuo
+predicado -> monario 
+ExS(x)
+
+
+
+predicarios monarios y binarios
+
+padre(pancho).
+
+pradrede(jose, juan).
+
+
+
+Todos los perros del vecinadrio muerden a algun cartero
+
+A -> cuantificador universal
+perros del vecinario -> propiedad, variabl de invididuo
+muerde -> propiedad
+E -> cuantificador existencial
+cartero -> propiedad, variable de individuo
+AxPerro(x) ->EyCartero(Y) EyMuerde(X,Y)

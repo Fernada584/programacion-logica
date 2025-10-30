@@ -1,0 +1,20 @@
+template([hola, mi, nombre, es, s(_), '.'], ['Hola', 0, '¿cómo estás?', '¿en qué puedo ayudarte?'], [1]).
+template([buenos, dias], ['Buenos días', 0, '¿cómo te sientes hoy?'], [2]).
+template([hola, yo, soy, s(_), '.'], ['Hola', 0, 'yo soy Eliza'], [3]).
+template([como, estas], ['Estoy bien, gracias por preguntar.', '¿y tú?'], [4]).
+template([estoy, bien], ['Me alegra saber eso.', '¿Qué te hace sentir bien hoy?'], [5]).
+template([estoy, triste], ['Lamento oír eso.', '¿Quieres contarme por qué te sientes así?'], [6]).
+template([me, siento, solo], ['¿Por qué crees que te sientes solo?'], [7]).
+template([me, gusta, la, musica], ['¡A mí también me gusta la música!', '¿Qué tipo de música te gusta?'], [8]).
+template([me, gusta, leer], ['Leer es una gran actividad.', '¿Qué libro lees ahora?'], [9]).
+template([no, tengo, amigos], ['Eso suena difícil.', '¿Te gustaría hacer nuevos amigos?'], [10]).
+template([tengo, hambre], ['Quizás deberías comer algo.', '¿Qué te gustaría comer?'], [11]).
+template([estoy, cansado], ['Parece que necesitas descansar.', '¿Dormiste bien anoche?'], [12]).
+template([odio, mi, trabajo], ['Parece que no estás contento con tu trabajo.', '¿Qué es lo que no te gusta de él?'], [13]).
+template([tengo, miedo], ['¿A qué le tienes miedo?'], [14]).
+template([no, se], ['Está bien no saberlo.', 'A veces solo necesitamos pensar un poco.'], [15]).
+template([quiero, ser, feliz], ['Todos queremos eso.', '¿Qué cosas te hacen feliz?'], [16]).
+template([me, siento, perdido], ['A veces todos nos sentimos así.', '¿Qué te hace sentir perdido?'], [17]).
+template([gracias], ['De nada, estoy aquí para escucharte.'], [18]).
+template([adios], ['Adiós', 0, 'cuídate mucho.'], [19]).
+template([buenas, noches], ['Buenas noches', 0, 'que descanses.'], [20]).
