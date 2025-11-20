@@ -1,0 +1,126 @@
+% ======================================================
+% SISTEMA EXPERTO MÉDICO "ELIZA"
+% Autor: Yepeto GPI
+% Descripción: Sistema experto en enfermedades comunes
+% ======================================================
+
+inicio :-
+    nl, write('==============================================='), nl,
+    write('  ELIZA - Sistema Médico en Prolog'), nl,
+    write('==============================================='), nl, nl,
+    write('Puedo brindarte información sobre estas enfermedades:'), nl,
+    write('- Neumonía'), nl,
+    write('- Meningitis'), nl,
+    write('- Hepatitis B'), nl, nl,
+    write('¿Sobre cuál deseas consultar? (escribe el nombre entre comillas)'), nl,
+    conversacion.
+
+% -----------------------------------------
+% Bucle de conversación
+% -----------------------------------------
+conversacion :-
+    write('> '),
+    read(Input),
+    procesar(Input).
+
+procesar(adios) :-
+    nl, write('Cuídate mucho. Recuerda que esto no sustituye la consulta médica profesional.'), nl, !.
+
+procesar(Input) :-
+    (   sub_atom(Input, _, _, _, 'neumonia')
+    ->  enfermedad(neumonia)
+    ;   sub_atom(Input, _, _, _, 'meningitis')
+    ->  enfermedad(meningitis)
+    ;   sub_atom(Input, _, _, _, 'hepatitis')
+    ->  enfermedad(hepatitis_b)
+    ;   write('No tengo información sobre eso. Intenta con Neumonía, Meningitis o Hepatitis B.'), nl
+    ),
+    conversacion.
+
+% -----------------------------------------
+% Base de conocimiento
+% -----------------------------------------
+enfermedad(neumonia) :-
+    nl, write('================= NEUMONÍA ================='), nl,
+    write(' Descripción:'), nl,
+    write('La neumonía es una infección pulmonar que inflama los alvéolos y dificulta la respiración.'), nl, nl,
+    write(' Síntomas:'), nl,
+    write('- Tos con flema o seca'), nl,
+    write('- Fiebre y escalofríos'), nl,
+    write('- Dolor en el pecho'), nl,
+    write('- Dificultad para respirar o fatiga'), nl, nl,
+    write(' Causas:'), nl,
+    write('- Infecciones por bacterias, virus o hongos'), nl,
+    write('- Tabaquismo o enfermedades pulmonares crónicas'), nl, nl,
+    write(' Médico especialista:'), nl,
+    write('- Neumólogo o médico general'), nl, nl,
+    write(' Tratamiento / Medicamentos:'), nl,
+    write('- Antibióticos (si es bacteriana)'), nl,
+    write('- Antivirales o antifúngicos según el agente'), nl,
+    write('- Hidratación y reposo'), nl, nl,
+    write(' Centros de salud recomendados:'), nl,
+    write('- Hospital General de tu localidad'), nl,
+    write('- Clínicas del IMSS o ISSSTE'), nl,
+    write('- Centros de salud municipales'), nl, nl,
+    write(' Cuidados y precauciones:'), nl,
+    write('- Evitar el tabaco y el alcohol'), nl,
+    write('- Mantener buena higiene de manos'), nl,
+    write('- Vacunarse contra la gripe y el neumococo'), nl, nl.
+
+enfermedad(meningitis) :-
+    nl, write('================= MENINGITIS ================='), nl,
+    write(' Descripción:'), nl,
+    write('La meningitis es la inflamación de las meninges, las membranas que rodean el cerebro y la médula espinal.'), nl, nl,
+    write(' Síntomas:'), nl,
+    write('- Dolor de cabeza intenso'), nl,
+    write('- Fiebre alta'), nl,
+    write('- Rigidez de cuello'), nl,
+    write('- Náuseas, vómitos, somnolencia o confusión'), nl, nl,
+    write(' Causas:'), nl,
+    write('- Infecciones virales o bacterianas (meningococo, neumococo, H. influenzae)'), nl, nl,
+    write(' Médico especialista:'), nl,
+    write('- Neurólogo o infectólogo'), nl, nl,
+    write(' Tratamiento / Medicamentos:'), nl,
+    write('- Antibióticos intravenosos si es bacteriana'), nl,
+    write('- Antivirales si es viral'), nl,
+    write('- Hospitalización y observación médica'), nl, nl,
+    write(' Centros de salud recomendados:'), nl,
+    write('- Hospital de Especialidades o Neurología'), nl,
+    write('- Hospital General más cercano'), nl, nl,
+    write(' Cuidados y precauciones:'), nl,
+    write('- Vacunarse contra meningococo, neumococo y Haemophilus influenzae tipo b'), nl,
+    write('- Evitar el contacto con personas infectadas'), nl,
+    write('- Acudir a urgencias si hay fiebre alta con rigidez de cuello o convulsiones'), nl, nl.
+
+enfermedad(hepatitis_b) :-
+    nl, write('================= HEPATITIS B ================='), nl,
+    write(' Descripción:'), nl,
+    write('La hepatitis B es una infección viral que afecta el hígado, causada por el virus VHB.'), nl, nl,
+    write(' Síntomas:'), nl,
+    write('- Color amarillento de la piel y ojos (ictericia)'), nl,
+    write('- Orina oscura y heces claras'), nl,
+    write('- Fatiga, náuseas y vómitos'), nl,
+    write('- Dolor abdominal o inflamación del hígado'), nl, nl,
+    write(' Causas:'), nl,
+    write('- Transmisión por sangre, relaciones sexuales o de madre a hijo durante el parto'), nl, nl,
+    write('🩺 Médico especialista:'), nl,
+    write('- Gastroenterólogo o hepatólogo'), nl, nl,
+    write(' Tratamiento / Medicamentos:'), nl,
+    write('- Antivirales para controlar la infección crónica'), nl,
+    write('- Reposo y dieta balanceada'), nl,
+    write('- Evitar el alcohol y medicamentos hepatotóxicos'), nl, nl,
+    write(' Centros de salud recomendados:'), nl,
+    write('- Hospital de enfermedades hepáticas'), nl,
+    write('- Hospital General de tu zona o clínica IMSS/ISSSTE'), nl, nl,
+    write(' Cuidados y precauciones:'), nl,
+    write('- Vacunarse contra la hepatitis B'), nl,
+    write('- Evitar compartir agujas, rastrillos o cepillos de dientes'), nl,
+    write('- Usar protección en relaciones sexuales'), nl,
+    write('- Realizar análisis de sangre de forma periódica'), nl, nl.
+
+% -----------------------------------------
+% Respuesta por defecto
+% -----------------------------------------
+procesar(_) :-
+    write('No entendí tu solicitud. Puedes decir "neumonia", "meningitis", "hepatitis b" o "adios" para salir.'), nl,
+    conversacion.

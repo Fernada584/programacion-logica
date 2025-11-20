@@ -1,0 +1,1 @@
+cuadrado(X,Y):- Y is X * X ;
