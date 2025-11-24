@@ -1,0 +1,105 @@
+Acertijo
+
+1. Especialidad
+
+¿Qué especialidad tiene cada uno?
+
+Ana → Bioquimica
+
+Bruno → Inmunologia
+
+Carlos → Genética
+
+Diana → Microbiologia
+
+Elisa → Neurociencia
+
+2. Horarios
+
+¿A qué hora llega cada investigador?
+
+Ana → 8am
+
+Bruno → 12pm
+
+Carlos → 6am
+
+Diana → 10am
+
+Elisa → 14pm
+
+3. Bebidas
+
+¿Qué bebida prefiere cada investigador?
+
+Ana → Jugo
+
+Bruno → Mate
+
+Carlos → Café
+
+Diana → Te
+
+Elisa → Agua
+
+4. Equipos
+
+¿Qué equipo usa cada quien?
+
+Ana → Microscopio
+
+Bruno → PCR
+
+Carlos → Espectrometro
+
+Diana → Centrifuga
+
+Elisa → Incubadora
+
+5. Países
+
+¿De qué pais es cada uno?
+
+Ana → Chile
+
+Bruno → Argentina
+
+Carlos → Mexico
+
+Diana → Peru
+
+Elisa → España
+
+
+
+Genetica a las 6am → Carlos
+
+Ana no Genetica ni Neuro → Bioquimica
+
+Centrífuga bebe te → Diana
+
+Perú llega 10am → Diana
+
+Carlos usa espectrómetro → *
+
+Café 2h antes que Jugo → Cafe(6am) → Jugo(8am)
+
+Inmunología usa PCR → Bruno
+
+Bioquimica es de Chile → Ana
+
+Incubadora a las 14 → Elisa
+
+Argentina bebe Mate → Bruno
+
+Elisa no Té ni Cafe → bebe Agua
+
+Microscopio a las 8 → Ana
+
+Mexico no usa Microscopio ni Incubadora → Carlos usa Espectro
+
+Agua no usa PCR ni Espectro → Elisa con Incubadora
+
+Neuro llega después de Jugo → Neuro(14) > Jugo(8)
+
+Peru NO bebe agua → Diana (Te)

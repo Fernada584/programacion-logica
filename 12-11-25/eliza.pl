@@ -1,143 +1,182 @@
-% ======================================================
-% SISTEMA EXPERTO MEDICO "ELIZA"
-% Version con menus anidados
-% ======================================================
+% ================================================
+%      HISTORIAL DE SINTOMAS (dinamico)
+% ================================================
+:- dynamic historial/1.
 
+% Limpia el historial al iniciar
 inicio :-
+    retractall(historial(_)),
     nl, write('==============================================='), nl,
-    write('          ELIZA - Sistema Medico en Prolog'), nl,
+    write('       ELIZA - Sistema Experto Medico en Prolog'), nl,
     write('==============================================='), nl, nl,
-    write('Puedo brindarte informacion sobre estas enfermedades:'), nl,
-    write('1. Neumonia'), nl,
-    write('2. Meningitis'), nl,
-    write('3. Hepatitis B'), nl,
-    write('4. Salir'), nl, nl,
-    write('Selecciona una opcion (1-4): '),
-    read(Opcion),
-    menu_principal(Opcion).
+    write('Puedo responder preguntas sobre:'), nl,
+    write('- Neumonia'), nl,
+    write('- Meningitis'), nl,
+    write('- Hepatitis B'), nl, nl,
+    write('Tambien puedo analizar tus sintomas.'), nl,
+    write('Ejemplo: "tengo fiebre y dolor de cabeza"'), nl,
+    write('Despues puedes preguntar: "que enfermedad puedo tener?"'), nl,
+    write('Escribe "adios" para salir.'), nl, nl,
+    conversacion.
 
-% -----------------------------------------
-% Menu principal
-% -----------------------------------------
-menu_principal(1) :- menu_enfermedad(neumonia).
-menu_principal(2) :- menu_enfermedad(meningitis).
-menu_principal(3) :- menu_enfermedad(hepatitis_b).
-menu_principal(4) :-
+
+% ================================================
+%  BUCLE DE CONVERSACION (lee textos completos)
+% ================================================
+conversacion :-
+    write('> '),
+    read_line_to_string(user_input, Input),
+    procesar(Input).
+
+procesar("adios") :-
     nl, write('Cuidate mucho. Recuerda que esto no sustituye la consulta medica profesional.'), nl, !.
-menu_principal(_) :-
-    nl, write('Opcion no valida. Intenta de nuevo.'), nl, inicio.
 
-% -----------------------------------------
-% Submenu de cada enfermedad
-% -----------------------------------------
-menu_enfermedad(Enfermedad) :-
-    repeat,
-    nl, write('==============================='), nl,
-    write(' Informacion sobre: '), write(Enfermedad), nl,
-    write('==============================='), nl,
-    write('1. Sintomas'), nl,
-    write('2. Causas'), nl,
-    write('3. Tratamiento / Medicamentos'), nl,
-    write('4. Medico especialista'), nl,
-    write('5. Centros de salud recomendados'), nl,
-    write('6. Cuidados y precauciones'), nl,
-    write('7. Volver al menu principal'), nl,
-    write('Selecciona una opcion (1-7): '),
-    read(Opcion),
-    (   Opcion == 7 -> inicio
-    ;   mostrar_info(Enfermedad, Opcion),
-        fail
+procesar(Input) :-
+    string_lower(Input, Lower),
+    guardar_sintomas(Lower),         % intenta guardar sintomas
+    explicar_y_responder(Lower),     % responde como chatbot
+    conversacion.
+
+
+% ================================================
+%     SISTEMA EXPLICATIVO + RESPUESTA
+% ================================================
+
+explicar_y_responder(Lower) :-
+
+    % ---- Diagnostico por historial ----
+    (   sub_string(Lower,_,_,_,"enfermedad puedo tener")
+    ->  diagnosticar, !
+    ;
+
+    % ---- NEUMONIA ----
+    (sub_string(Lower,_,_,_,"neumonia"), sub_string(Lower,_,_,_,"sintoma"))
+    -> explicar("sintoma","neumonia"), mostrar_info(neumonia,1)
+    ;
+    (sub_string(Lower,_,_,_,"neumonia"), sub_string(Lower,_,_,_,"causa"))
+    -> explicar("causa","neumonia"), mostrar_info(neumonia,2)
+    ;
+    (sub_string(Lower,_,_,_,"neumonia"), sub_string(Lower,_,_,_,"tratamiento"))
+    -> explicar("tratamiento","neumonia"), mostrar_info(neumonia,3)
+    ;
+    (sub_string(Lower,_,_,_,"neumonia"), sub_string(Lower,_,_,_,"medico"))
+    -> explicar("medico","neumonia"), mostrar_info(neumonia,4)
+    ;
+    (sub_string(Lower,_,_,_,"neumonia"), sub_string(Lower,_,_,_,"centro"))
+    -> explicar("centro","neumonia"), mostrar_info(neumonia,5)
+    ;
+    (sub_string(Lower,_,_,_,"neumonia"), sub_string(Lower,_,_,_,"cuidado"))
+    -> explicar("cuidado","neumonia"), mostrar_info(neumonia,6)
+    ;
+
+    % ---- MENINGITIS ----
+    (sub_string(Lower,_,_,_,"meningitis"), sub_string(Lower,_,_,_,"sintoma"))
+    -> explicar("sintoma","meningitis"), mostrar_info(meningitis,1)
+    ;
+    (sub_string(Lower,_,_,_,"meningitis"), sub_string(Lower,_,_,_,"causa"))
+    -> explicar("causa","meningitis"), mostrar_info(meningitis,2)
+    ;
+    (sub_string(Lower,_,_,_,"meningitis"), sub_string(Lower,_,_,_,"tratamiento"))
+    -> explicar("tratamiento","meningitis"), mostrar_info(meningitis,3)
+    ;
+    (sub_string(Lower,_,_,_,"meningitis"), sub_string(Lower,_,_,_,"medico"))
+    -> explicar("medico","meningitis"), mostrar_info(meningitis,4)
+    ;
+    (sub_string(Lower,_,_,_,"meningitis"), sub_string(Lower,_,_,_,"centro"))
+    -> explicar("centro","meningitis"), mostrar_info(meningitis,5)
+    ;
+    (sub_string(Lower,_,_,_,"meningitis"), sub_string(Lower,_,_,_,"cuidado"))
+    -> explicar("cuidado","meningitis"), mostrar_info(meningitis,6)
+    ;
+
+    % ---- HEPATITIS B ----
+    (sub_string(Lower,_,_,_,"hepatitis"), sub_string(Lower,_,_,_,"sintoma"))
+    -> explicar("sintoma","hepatitis b"), mostrar_info(hepatitis_b,1)
+    ;
+    (sub_string(Lower,_,_,_,"hepatitis"), sub_string(Lower,_,_,_,"causa"))
+    -> explicar("causa","hepatitis b"), mostrar_info(hepatitis_b,2)
+    ;
+    (sub_string(Lower,_,_,_,"hepatitis"), sub_string(Lower,_,_,_,"tratamiento"))
+    -> explicar("tratamiento","hepatitis b"), mostrar_info(hepatitis_b,3)
+    ;
+    (sub_string(Lower,_,_,_,"hepatitis"), sub_string(Lower,_,_,_,"medico"))
+    -> explicar("medico","hepatitis b"), mostrar_info(hepatitis_b,4)
+    ;
+    (sub_string(Lower,_,_,_,"hepatitis"), sub_string(Lower,_,_,_,"centro"))
+    -> explicar("centro","hepatitis b"), mostrar_info(hepatitis_b,5)
+    ;
+    (sub_string(Lower,_,_,_,"hepatitis"), sub_string(Lower,_,_,_,"cuidado"))
+    -> explicar("cuidado","hepatitis b"), mostrar_info(hepatitis_b,6)
+    ;
+
+    % DEFAULT:
+    write('No entendi tu pregunta. Puedes preguntar por sintomas, causas, tratamiento o medico.'), nl
+    )).
+
+
+% ================================================
+%     SISTEMA EXPLICATIVO
+% ================================================
+explicar(Clave, Enfermedad) :-
+    nl,
+    write("Detecte la palabra relacionada con "), write(Clave), write("."), nl,
+    write("Tambien detecte la enfermedad "), write(Enfermedad), write("."), nl,
+    write("Por eso te muestro esta informacion:"), nl, nl.
+
+
+% ================================================
+%       GUARDAR HISTORIAL DE SINTOMAS
+% ================================================
+guardar_sintomas(Texto) :-
+    sintomas_lista(Lista),
+    forall(
+        member(S, Lista),
+        (   sub_string(Texto,_,_,_,S)
+        ->  assertz(historial(S))
+        ;   true
+        )
     ).
 
-% -----------------------------------------
-% Base de conocimiento por seccion
-% -----------------------------------------
-% NEUMONIA
-mostrar_info(neumonia, 1) :-
-    nl, write('Sintomas de la neumonia:'), nl,
-    write('- Tos con flema o seca'), nl,
-    write('- Fiebre y escalofrios'), nl,
-    write('- Dolor en el pecho'), nl,
-    write('- Dificultad para respirar o fatiga'), nl, !.
-mostrar_info(neumonia, 2) :-
-    nl, write('Causas de la neumonia:'), nl,
-    write('- Infecciones por bacterias, virus o hongos'), nl,
-    write('- Tabaquismo o enfermedades pulmonares cronicas'), nl, !.
-mostrar_info(neumonia, 3) :-
-    nl, write('Tratamiento y medicamentos para la neumonia:'), nl,
-    write('- Antibioticos (si es bacteriana)'), nl,
-    write('- Antivirales o antifungicos segun el agente'), nl,
-    write('- Hidratacion y reposo'), nl, !.
-mostrar_info(neumonia, 4) :-
-    nl, write('Medico especialista:'), nl,
-    write('- Neumologo o medico general'), nl, !.
-mostrar_info(neumonia, 5) :-
-    nl, write('Centros de salud recomendados:'), nl,
-    write('- Hospital General de tu localidad'), nl,
-    write('- Clinicas del IMSS o ISSSTE'), nl,
-    write('- Centros de salud municipales'), nl, !.
-mostrar_info(neumonia, 6) :-
-    nl, write('Cuidados y precauciones:'), nl,
-    write('- Evitar el tabaco y el alcohol'), nl,
-    write('- Mantener buena higiene de manos'), nl,
-    write('- Vacunarse contra la gripe y el neumococo'), nl, !.
+sintomas_lista([
+    "fiebre",
+    "tos",
+    "dolor de cabeza",
+    "rigidez",
+    "vomito",
+    "nausea",
+    "fatiga",
+    "dificultad para respirar",
+    "ictericia",
+    "dolor abdominal"
+]).
 
-% MENINGITIS
-mostrar_info(meningitis, 1) :-
-    nl, write('Sintomas de la meningitis:'), nl,
-    write('- Dolor de cabeza intenso'), nl,
-    write('- Fiebre alta'), nl,
-    write('- Rigidez de cuello'), nl,
-    write('- Nauseas, vomitos, somnolencia o confusion'), nl, !.
-mostrar_info(meningitis, 2) :-
-    nl, write('Causas de la meningitis:'), nl,
-    write('- Infecciones virales o bacterianas (meningococo, neumococo, H. influenzae)'), nl, !.
-mostrar_info(meningitis, 3) :-
-    nl, write('Tratamiento y medicamentos para la meningitis:'), nl,
-    write('- Antibioticos intravenosos si es bacteriana'), nl,
-    write('- Antivirales si es viral'), nl,
-    write('- Hospitalizacion y observacion medica'), nl, !.
-mostrar_info(meningitis, 4) :-
-    nl, write('Medico especialista:'), nl,
-    write('- Neurologo o infectologo'), nl, !.
-mostrar_info(meningitis, 5) :-
-    nl, write('Centros de salud recomendados:'), nl,
-    write('- Hospital de Especialidades o Neurologia'), nl,
-    write('- Hospital General mas cercano'), nl, !.
-mostrar_info(meningitis, 6) :-
-    nl, write('Cuidados y precauciones:'), nl,
-    write('- Vacunarse contra meningococo, neumococo y Haemophilus influenzae tipo b'), nl,
-    write('- Evitar el contacto con personas infectadas'), nl,
-    write('- Acudir a urgencias si hay fiebre alta con rigidez de cuello o convulsiones'), nl, !.
 
-% HEPATITIS B
-mostrar_info(hepatitis_b, 1) :-
-    nl, write('Sintomas de la hepatitis B:'), nl,
-    write('- Color amarillento de la piel y ojos (ictericia)'), nl,
-    write('- Orina oscura y heces claras'), nl,
-    write('- Fatiga, nauseas y vomitos'), nl,
-    write('- Dolor abdominal o inflamacion del higado'), nl, !.
-mostrar_info(hepatitis_b, 2) :-
-    nl, write('Causas de la hepatitis B:'), nl,
-    write('- Transmision por sangre, relaciones sexuales o de madre a hijo durante el parto'), nl, !.
-mostrar_info(hepatitis_b, 3) :-
-    nl, write('Tratamiento y medicamentos para la hepatitis B:'), nl,
-    write('- Antivirales para controlar la infeccion cronica'), nl,
-    write('- Reposo y dieta balanceada'), nl,
-    write('- Evitar el alcohol y medicamentos hepatotoxicos'), nl, !.
-mostrar_info(hepatitis_b, 4) :-
-    nl, write('Medico especialista:'), nl,
-    write('- Gastroenterologo o hepatologo'), nl, !.
-mostrar_info(hepatitis_b, 5) :-
-    nl, write('Centros de salud recomendados:'), nl,
-    write('- Hospital de enfermedades hepaticas'), nl,
-    write('- Hospital General de tu zona o clinica IMSS/ISSSTE'), nl, !.
-mostrar_info(hepatitis_b, 6) :-
-    nl, write('Cuidados y precauciones:'), nl,
-    write('- Vacunarse contra la hepatitis B'), nl,
-    write('- Evitar compartir agujas, rastrillos o cepillos de dientes'), nl,
-    write('- Usar proteccion en relaciones sexuales'), nl,
-    write('- Realizar analisis de sangre de forma periodica'), nl, !.
+% ================================================
+%         DIAGNOSTICO POR HISTORIAL
+% ================================================
+diagnosticar :-
+    findall(S, historial(S), Sintomas),
+    nl, write("He analizado tus sintomas: "), write(Sintomas), nl,
 
-% Clausula comodin: ahora SOLO falla (no imprime nada).
-mostrar_info(_, _) :- fail.
+    (   coincide_meningitis(Sintomas)
+    ->  write("Podria tratarse de MENINGITIS."), nl
+    ;   coincide_neumonia(Sintomas)
+    ->  write("Podria tratarse de NEUMONIA."), nl
+    ;   coincide_hepatitis(Sintomas)
+    ->  write("Podria tratarse de HEPATITIS B."), nl
+    ;   write("No puedo identificar una enfermedad con los sintomas dados."), nl
+    ).
+
+
+% Reglas simples (puedes ampliarlas)
+coincide_meningitis(S) :-
+    member("fiebre", S),
+    member("rigidez", S).
+
+coincide_neumonia(S) :-
+    member("tos", S),
+    member("dificultad para respirar", S).
+
+coincide_hepatitis(S) :-
+    member("ictericia", S),
+    member("dolor abdominal", S).

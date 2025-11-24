@@ -1,22 +1,22 @@
 % ======================================================
-% SISTEMA EXPERTO MÉDICO "ELIZA"
-% Autor: Yepeto GPI
-% Descripción: Sistema experto en enfermedades comunes
+% SISTEMA EXPERTO MEDICO "ELIZA"
+% Version conversacional con respuestas automaticas
 % ======================================================
 
 inicio :-
     nl, write('==============================================='), nl,
-    write('  ELIZA - Sistema Médico en Prolog'), nl,
+    write('       ELIZA - Sistema Experto Medico en Prolog'), nl,
     write('==============================================='), nl, nl,
-    write('Puedo brindarte información sobre estas enfermedades:'), nl,
-    write('- Neumonía'), nl,
+    write('Puedo responder preguntas sobre:'), nl,
+    write('- Neumonia'), nl,
     write('- Meningitis'), nl,
     write('- Hepatitis B'), nl, nl,
-    write('¿Sobre cuál deseas consultar? (escribe el nombre entre comillas)'), nl,
+    write('Ejemplo: "Cuales son los sintomas de la meningitis?"'), nl,
+    write('Escribe "adios" para salir.'), nl, nl,
     conversacion.
 
 % -----------------------------------------
-% Bucle de conversación
+% Bucle de conversacion
 % -----------------------------------------
 conversacion :-
     write('> '),
@@ -24,103 +24,141 @@ conversacion :-
     procesar(Input).
 
 procesar(adios) :-
-    nl, write('Cuídate mucho. Recuerda que esto no sustituye la consulta médica profesional.'), nl, !.
+    nl, write('Cuidate mucho. Recuerda que esto no sustituye la consulta medica profesional.'), nl, !.
 
+% --- Analisis de entrada (palabras clave)
 procesar(Input) :-
-    (   sub_atom(Input, _, _, _, 'neumonia')
-    ->  enfermedad(neumonia)
-    ;   sub_atom(Input, _, _, _, 'meningitis')
-    ->  enfermedad(meningitis)
-    ;   sub_atom(Input, _, _, _, 'hepatitis')
-    ->  enfermedad(hepatitis_b)
-    ;   write('No tengo información sobre eso. Intenta con Neumonía, Meningitis o Hepatitis B.'), nl
+    downcase_atom(Input, Lower),
+    (   (sub_atom(Lower, _, _, _, 'sintoma'), sub_atom(Lower, _, _, _, 'neumonia'))
+    ->  mostrar_info(neumonia, 1)
+    ;   (sub_atom(Lower, _, _, _, 'causa'), sub_atom(Lower, _, _, _, 'neumonia'))
+    ->  mostrar_info(neumonia, 2)
+    ;   (sub_atom(Lower, _, _, _, 'tratamiento'), sub_atom(Lower, _, _, _, 'neumonia'))
+    ->  mostrar_info(neumonia, 3)
+    ;   (sub_atom(Lower, _, _, _, 'medico'), sub_atom(Lower, _, _, _, 'neumonia'))
+    ->  mostrar_info(neumonia, 4)
+    ;   (sub_atom(Lower, _, _, _, 'centro'), sub_atom(Lower, _, _, _, 'neumonia'))
+    ->  mostrar_info(neumonia, 5)
+    ;   (sub_atom(Lower, _, _, _, 'cuidado'), sub_atom(Lower, _, _, _, 'neumonia'))
+    ->  mostrar_info(neumonia, 6)
+
+    ;   (sub_atom(Lower, _, _, _, 'sintoma'), sub_atom(Lower, _, _, _, 'meningitis'))
+    ->  mostrar_info(meningitis, 1)
+    ;   (sub_atom(Lower, _, _, _, 'causa'), sub_atom(Lower, _, _, _, 'meningitis'))
+    ->  mostrar_info(meningitis, 2)
+    ;   (sub_atom(Lower, _, _, _, 'tratamiento'), sub_atom(Lower, _, _, _, 'meningitis'))
+    ->  mostrar_info(meningitis, 3)
+    ;   (sub_atom(Lower, _, _, _, 'medico'), sub_atom(Lower, _, _, _, 'meningitis'))
+    ->  mostrar_info(meningitis, 4)
+    ;   (sub_atom(Lower, _, _, _, 'centro'), sub_atom(Lower, _, _, _, 'meningitis'))
+    ->  mostrar_info(meningitis, 5)
+    ;   (sub_atom(Lower, _, _, _, 'cuidado'), sub_atom(Lower, _, _, _, 'meningitis'))
+    ->  mostrar_info(meningitis, 6)
+
+    ;   (sub_atom(Lower, _, _, _, 'sintoma'), sub_atom(Lower, _, _, _, 'hepatitis'))
+    ->  mostrar_info(hepatitis_b, 1)
+    ;   (sub_atom(Lower, _, _, _, 'causa'), sub_atom(Lower, _, _, _, 'hepatitis'))
+    ->  mostrar_info(hepatitis_b, 2)
+    ;   (sub_atom(Lower, _, _, _, 'tratamiento'), sub_atom(Lower, _, _, _, 'hepatitis'))
+    ->  mostrar_info(hepatitis_b, 3)
+    ;   (sub_atom(Lower, _, _, _, 'medico'), sub_atom(Lower, _, _, _, 'hepatitis'))
+    ->  mostrar_info(hepatitis_b, 4)
+    ;   (sub_atom(Lower, _, _, _, 'centro'), sub_atom(Lower, _, _, _, 'hepatitis'))
+    ->  mostrar_info(hepatitis_b, 5)
+    ;   (sub_atom(Lower, _, _, _, 'cuidado'), sub_atom(Lower, _, _, _, 'hepatitis'))
+    ->  mostrar_info(hepatitis_b, 6)
+
+    ;   write('No entendi tu pregunta. Puedes preguntar por sintomas, causas, tratamiento, medico, centros o cuidados de alguna enfermedad.'), nl
     ),
     conversacion.
 
 % -----------------------------------------
 % Base de conocimiento
 % -----------------------------------------
-enfermedad(neumonia) :-
-    nl, write('================= NEUMONÍA ================='), nl,
-    write(' Descripción:'), nl,
-    write('La neumonía es una infección pulmonar que inflama los alvéolos y dificulta la respiración.'), nl, nl,
-    write(' Síntomas:'), nl,
+
+% --- NEUMONIA
+mostrar_info(neumonia, 1) :-
+    nl, write('Sintomas de la neumonia:'), nl,
     write('- Tos con flema o seca'), nl,
-    write('- Fiebre y escalofríos'), nl,
+    write('- Fiebre y escalofrios'), nl,
     write('- Dolor en el pecho'), nl,
-    write('- Dificultad para respirar o fatiga'), nl, nl,
-    write(' Causas:'), nl,
+    write('- Dificultad para respirar o fatiga'), nl, !.
+mostrar_info(neumonia, 2) :-
+    nl, write('Causas de la neumonia:'), nl,
     write('- Infecciones por bacterias, virus o hongos'), nl,
-    write('- Tabaquismo o enfermedades pulmonares crónicas'), nl, nl,
-    write(' Médico especialista:'), nl,
-    write('- Neumólogo o médico general'), nl, nl,
-    write(' Tratamiento / Medicamentos:'), nl,
-    write('- Antibióticos (si es bacteriana)'), nl,
-    write('- Antivirales o antifúngicos según el agente'), nl,
-    write('- Hidratación y reposo'), nl, nl,
-    write(' Centros de salud recomendados:'), nl,
+    write('- Tabaquismo o enfermedades pulmonares cronicas'), nl, !.
+mostrar_info(neumonia, 3) :-
+    nl, write('Tratamiento y medicamentos para la neumonia:'), nl,
+    write('- Antibioticos (si es bacteriana)'), nl,
+    write('- Antivirales o antifungicos segun el agente'), nl,
+    write('- Hidratacion y reposo'), nl, !.
+mostrar_info(neumonia, 4) :-
+    nl, write('Medico especialista:'), nl,
+    write('- Neumologo o medico general'), nl, !.
+mostrar_info(neumonia, 5) :-
+    nl, write('Centros de salud recomendados:'), nl,
     write('- Hospital General de tu localidad'), nl,
-    write('- Clínicas del IMSS o ISSSTE'), nl,
-    write('- Centros de salud municipales'), nl, nl,
-    write(' Cuidados y precauciones:'), nl,
+    write('- Clinicas del IMSS o ISSSTE'), nl,
+    write('- Centros de salud municipales'), nl, !.
+mostrar_info(neumonia, 6) :-
+    nl, write('Cuidados y precauciones:'), nl,
     write('- Evitar el tabaco y el alcohol'), nl,
     write('- Mantener buena higiene de manos'), nl,
-    write('- Vacunarse contra la gripe y el neumococo'), nl, nl.
+    write('- Vacunarse contra la gripe y el neumococo'), nl, !.
 
-enfermedad(meningitis) :-
-    nl, write('================= MENINGITIS ================='), nl,
-    write(' Descripción:'), nl,
-    write('La meningitis es la inflamación de las meninges, las membranas que rodean el cerebro y la médula espinal.'), nl, nl,
-    write(' Síntomas:'), nl,
+% --- MENINGITIS
+mostrar_info(meningitis, 1) :-
+    nl, write('Sintomas de la meningitis:'), nl,
     write('- Dolor de cabeza intenso'), nl,
     write('- Fiebre alta'), nl,
     write('- Rigidez de cuello'), nl,
-    write('- Náuseas, vómitos, somnolencia o confusión'), nl, nl,
-    write(' Causas:'), nl,
-    write('- Infecciones virales o bacterianas (meningococo, neumococo, H. influenzae)'), nl, nl,
-    write(' Médico especialista:'), nl,
-    write('- Neurólogo o infectólogo'), nl, nl,
-    write(' Tratamiento / Medicamentos:'), nl,
-    write('- Antibióticos intravenosos si es bacteriana'), nl,
+    write('- Nauseas, vomitos, somnolencia o confusion'), nl, !.
+mostrar_info(meningitis, 2) :-
+    nl, write('Causas de la meningitis:'), nl,
+    write('- Infecciones virales o bacterianas (meningococo, neumococo, H. influenzae)'), nl, !.
+mostrar_info(meningitis, 3) :-
+    nl, write('Tratamiento y medicamentos para la meningitis:'), nl,
+    write('- Antibioticos intravenosos si es bacteriana'), nl,
     write('- Antivirales si es viral'), nl,
-    write('- Hospitalización y observación médica'), nl, nl,
-    write(' Centros de salud recomendados:'), nl,
-    write('- Hospital de Especialidades o Neurología'), nl,
-    write('- Hospital General más cercano'), nl, nl,
-    write(' Cuidados y precauciones:'), nl,
+    write('- Hospitalizacion y observacion medica'), nl, !.
+mostrar_info(meningitis, 4) :-
+    nl, write('Medico especialista:'), nl,
+    write('- Neurologo o infectologo'), nl, !.
+mostrar_info(meningitis, 5) :-
+    nl, write('Centros de salud recomendados:'), nl,
+    write('- Hospital de Especialidades o Neurologia'), nl,
+    write('- Hospital General mas cercano'), nl, !.
+mostrar_info(meningitis, 6) :-
+    nl, write('Cuidados y precauciones:'), nl,
     write('- Vacunarse contra meningococo, neumococo y Haemophilus influenzae tipo b'), nl,
     write('- Evitar el contacto con personas infectadas'), nl,
-    write('- Acudir a urgencias si hay fiebre alta con rigidez de cuello o convulsiones'), nl, nl.
+    write('- Acudir a urgencias si hay fiebre alta con rigidez de cuello o convulsiones'), nl, !.
 
-enfermedad(hepatitis_b) :-
-    nl, write('================= HEPATITIS B ================='), nl,
-    write(' Descripción:'), nl,
-    write('La hepatitis B es una infección viral que afecta el hígado, causada por el virus VHB.'), nl, nl,
-    write(' Síntomas:'), nl,
+% --- HEPATITIS B
+mostrar_info(hepatitis_b, 1) :-
+    nl, write('Sintomas de la hepatitis B:'), nl,
     write('- Color amarillento de la piel y ojos (ictericia)'), nl,
     write('- Orina oscura y heces claras'), nl,
-    write('- Fatiga, náuseas y vómitos'), nl,
-    write('- Dolor abdominal o inflamación del hígado'), nl, nl,
-    write(' Causas:'), nl,
-    write('- Transmisión por sangre, relaciones sexuales o de madre a hijo durante el parto'), nl, nl,
-    write('🩺 Médico especialista:'), nl,
-    write('- Gastroenterólogo o hepatólogo'), nl, nl,
-    write(' Tratamiento / Medicamentos:'), nl,
-    write('- Antivirales para controlar la infección crónica'), nl,
+    write('- Fatiga, nauseas y vomitos'), nl,
+    write('- Dolor abdominal o inflamacion del higado'), nl, !.
+mostrar_info(hepatitis_b, 2) :-
+    nl, write('Causas de la hepatitis B:'), nl,
+    write('- Transmision por sangre, relaciones sexuales o de madre a hijo durante el parto'), nl, !.
+mostrar_info(hepatitis_b, 3) :-
+    nl, write('Tratamiento y medicamentos para la hepatitis B:'), nl,
+    write('- Antivirales para controlar la infeccion cronica'), nl,
     write('- Reposo y dieta balanceada'), nl,
-    write('- Evitar el alcohol y medicamentos hepatotóxicos'), nl, nl,
-    write(' Centros de salud recomendados:'), nl,
-    write('- Hospital de enfermedades hepáticas'), nl,
-    write('- Hospital General de tu zona o clínica IMSS/ISSSTE'), nl, nl,
-    write(' Cuidados y precauciones:'), nl,
+    write('- Evitar el alcohol y medicamentos hepatotoxicos'), nl, !.
+mostrar_info(hepatitis_b, 4) :-
+    nl, write('Medico especialista:'), nl,
+    write('- Gastroenterologo o hepatologo'), nl, !.
+mostrar_info(hepatitis_b, 5) :-
+    nl, write('Centros de salud recomendados:'), nl,
+    write('- Hospital de enfermedades hepaticas'), nl,
+    write('- Hospital General de tu zona o clinica IMSS/ISSSTE'), nl, !.
+mostrar_info(hepatitis_b, 6) :-
+    nl, write('Cuidados y precauciones:'), nl,
     write('- Vacunarse contra la hepatitis B'), nl,
     write('- Evitar compartir agujas, rastrillos o cepillos de dientes'), nl,
-    write('- Usar protección en relaciones sexuales'), nl,
-    write('- Realizar análisis de sangre de forma periódica'), nl, nl.
-
-% -----------------------------------------
-% Respuesta por defecto
-% -----------------------------------------
-procesar(_) :-
-    write('No entendí tu solicitud. Puedes decir "neumonia", "meningitis", "hepatitis b" o "adios" para salir.'), nl,
-    conversacion.
+    write('- Usar proteccion en relaciones sexuales'), nl,
+    write('- Realizar analisis de sangre de forma periodica'), nl, !.
