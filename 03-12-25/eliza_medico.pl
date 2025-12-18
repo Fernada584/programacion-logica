@@ -577,6 +577,14 @@ procesar(Input) :-
 % ==========================================================
 % Auxiliar para detectar personajes
 % ==========================================================
+extraer_personaje(Input, mickey) :-
+    sub_string(Input,_,_,_,"mickey"), !.
+extraer_personaje(Input, minnie) :-
+    sub_string(Input,_,_,_,"minnie"), !.
+extraer_personaje(Input, donald) :-
+    sub_string(Input,_,_,_,"donald"), !.
+extraer_personaje(Input, goofy) :-
+    sub_string(Input,_,_,_,"goofy"), !.
 extraer_personaje(Input, stich) :-
     sub_string(Input,_,_,_,"stich"), !.
 extraer_personaje(Input, rapunzel) :-
